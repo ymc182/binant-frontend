@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 export default function MintHeader() {
 	const [nftSupply, setNftSupply] = React.useState(null);
 	const [mintPrice, setMintPrice] = React.useState();
-	const { contract, signer, address } = useWeb3();
+	const { contract, signer, address, provider } = useWeb3();
 	useEffect(() => {
 		if (!contract) return;
 		const getTotal = async () => {
@@ -24,9 +24,27 @@ export default function MintHeader() {
 		const contractWithSigner = contract.connect(signer);
 
 		const tx = await contractWithSigner.mintNFT(1, { value: ethers.utils.parseEther("0.1") });
-		console.log(tx);
-	};
 
+		const final = await toast.promise(waitForTransaction(tx.hash), {
+			pending: "Minting",
+			success: "Success!",
+			error: "Mint Failed",
+		});
+	};
+	const waitForTransaction = async (tx) => {
+		let confirmedApprove = null;
+		return new Promise(async (res, rej) => {
+			while (confirmedApprove === undefined || confirmedApprove === null) {
+				confirmedApprove = await provider.getTransactionReceipt(tx);
+				await sleep(1000);
+				console.log(confirmedApprove);
+			}
+			res(confirmedApprove);
+		});
+	};
+	function sleep(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
 	const StyledButton = styled(Button)`
 		color: #fff;
 		width: 180px;
