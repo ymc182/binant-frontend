@@ -23,27 +23,23 @@ export default function Experience() {
 	const stakeNFT = async () => {
 		const contractWithSigner = contract.connect(signer);
 		const tx = await contractWithSigner.approve(testNFTFarm, tokenIdRef.current.value);
-		console.log("tx:", tx);
-		let confirmedApprove = null;
-		const approvePromise = new Promise(async (res, rej) => {
-			while (confirmedApprove === undefined || confirmedApprove === null) {
-				confirmedApprove = await provider.getTransactionReceipt(tx.hash);
-				await sleep(1000);
-				console.log(confirmedApprove);
-			}
-			res(confirmedApprove);
-		});
-		await toast.promise(approvePromise, {
+
+		await toast.promise(waitForTransaction(tx.hash), {
 			pending: "Approving Stake",
 			success: "Approved",
 			error: "Error getting Approval",
 		});
 		const farmWithSigner = farmContract.connect(signer);
-		const stake = toast.promise(farmWithSigner.stake(tokenIdRef.current.value), {
+		const farmTx = await farmWithSigner.stake(tokenIdRef.current.value);
+		const stake = await toast.promise(waitForTransaction(farmTx.hash), {
 			pending: "Staking",
 			success: "Staked!",
 			error: "Error Stake",
 		});
+		const staked = await farmContract.getStakedToken(address);
+		const balance = await contract.balanceOf(address);
+		setStakeBalance(staked.length);
+		setNFTBalance(balance.toString());
 	};
 	function sleep(ms) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,19 +47,25 @@ export default function Experience() {
 	const unstakeNFT = async () => {
 		const farmWithSigner = farmContract.connect(signer);
 		const tx = await farmWithSigner.unstake(tokenIdRef.current.value);
+		const unstake = await toast.promise(waitForTransaction(tx.hash), {
+			pending: "unStaking",
+			success: "unStaked!",
+			error: "Error Stake",
+		});
+		const staked = await farmContract.getStakedToken(address);
+		const balance = await contract.balanceOf(address);
+		setStakeBalance(staked.length);
+		setNFTBalance(balance.toString());
+	};
+	const waitForTransaction = async (tx) => {
 		let confirmedApprove = null;
-		const approvePromise = new Promise(async (res, rej) => {
+		return new Promise(async (res, rej) => {
 			while (confirmedApprove === undefined || confirmedApprove === null) {
-				confirmedApprove = await provider.getTransactionReceipt(tx.hash);
+				confirmedApprove = await provider.getTransactionReceipt(tx);
 				await sleep(1000);
 				console.log(confirmedApprove);
 			}
 			res(confirmedApprove);
-		});
-		const unstake = toast.promise(approvePromise, {
-			pending: "unStaking",
-			success: "unStaked!",
-			error: "Error Stake",
 		});
 	};
 	return (
