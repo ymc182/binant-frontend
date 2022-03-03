@@ -8,13 +8,22 @@ import { useWeb3 } from "../contexts/Web3Context";
 import { ethers } from "ethers";
 export default function MintHeader() {
 	const [nftSupply, setNftSupply] = React.useState(null);
+	const [mintPrice, setMintPrice] = React.useState();
 	const { contract, signer, address } = useWeb3();
-
+	useEffect(() => {
+		if (!contract) return;
+		const getTotal = async () => {
+			const total = await contract.totalSupply();
+			setNftSupply(total.toString());
+			const currentPrice = await contract.mintPrice();
+			setMintPrice(ethers.utils.formatEther(currentPrice.toString()));
+		};
+		getTotal();
+	}, []);
 	const mint = async () => {
 		const contractWithSigner = contract.connect(signer);
-		console.log(address);
-		console.log(contract);
-		const tx = await contractWithSigner.mint(address, 1, { value: ethers.utils.parseEther("0.1") });
+
+		const tx = await contractWithSigner.mintNFT(1, { value: ethers.utils.parseEther("0.1") });
 		console.log(tx);
 	};
 
@@ -41,37 +50,7 @@ export default function MintHeader() {
 			<Box>
 				<Grid container display={"flex"} justifyContent="space-between" sx={{ borderRadius: "20px", mt: 15 }}>
 					<Grid item xs={12} sm={1} sx={{}}>
-						<Grid container display={"flex"}>
-							<Grid item>
-								<a href="https://discord.com/invite/YNNu7aM2BH">
-									<IconButton className="growmore" sx={{ fontSize: "300%" }}>
-										<span className="iconify" data-icon="simple-icons:discord"></span>
-									</IconButton>
-								</a>
-							</Grid>
-							<Grid item>
-								<a href="https://www.instagram.com/goodfortunefelines/">
-									<IconButton>
-										<InstagramIcon className="growmore" sx={{ fontSize: "200%" }} />
-									</IconButton>
-								</a>
-							</Grid>
-
-							<Grid item>
-								<a href="https://twitter.com/goodfortuneNFT">
-									<IconButton>
-										<TwitterIcon className="growmore" sx={{ fontSize: "200%" }} />
-									</IconButton>
-								</a>
-							</Grid>
-							<Grid item>
-								<a href="https://www.goodfortunefelines.xyz/">
-									<IconButton>
-										<PublicIcon className="growmore" sx={{ fontSize: "200%" }} />
-									</IconButton>
-								</a>
-							</Grid>
-						</Grid>
+						<SocialMediaButton />
 					</Grid>
 					<Grid item xs={12} sm={6} sx={{}}>
 						<Grid
@@ -80,7 +59,13 @@ export default function MintHeader() {
 							display="flex"
 							justifyContent={"space-between"}
 							direction="column"
-							sx={{ height: "350px" }}
+							sx={{
+								height: "350px",
+
+								border: "2px solid #CE00FF",
+								p: 3,
+								boxShadow: "0 0 10px #E07AFF",
+							}}
 						>
 							<Grid item>
 								<Typography className="grow" variant="h3" fontWeight={"900"} /* sx={{ textShadow: "2px 2px 6px" }} */>
@@ -99,7 +84,9 @@ export default function MintHeader() {
 								</StyledButton>
 							</Grid>
 
-							<Grid item>Minted {nftSupply} / 3333</Grid>
+							<Grid item>
+								Minted {nftSupply} / 3333 || Mint Price : {mintPrice} BNB
+							</Grid>
 						</Grid>
 					</Grid>
 					<Grid
@@ -119,7 +106,7 @@ export default function MintHeader() {
 								height: "350px",
 							}}
 							width={"auto"}
-							src="/img/catheader.png"
+							src="/img/showcase1.png"
 							alt="showcase"
 							className="animate__animated animate__bounce "
 						></img>
@@ -129,5 +116,61 @@ export default function MintHeader() {
 
 			<br />
 		</Container>
+	);
+}
+
+function SocialMediaButton({}) {
+	return (
+		<Grid container display={"flex"}>
+			<Grid item>
+				<a href="https://discord.com/invite/YNNu7aM2BH">
+					<IconButton
+						className="growmore"
+						sx={{
+							fontSize: "300%",
+						}}
+					>
+						<span className="iconify" data-icon="simple-icons:discord"></span>
+					</IconButton>
+				</a>
+			</Grid>
+			<Grid item>
+				<a href="https://www.instagram.com/goodfortunefelines/">
+					<IconButton>
+						<InstagramIcon
+							className="growmore"
+							sx={{
+								fontSize: "200%",
+							}}
+						/>
+					</IconButton>
+				</a>
+			</Grid>
+
+			<Grid item>
+				<a href="https://twitter.com/goodfortuneNFT">
+					<IconButton>
+						<TwitterIcon
+							className="growmore"
+							sx={{
+								fontSize: "200%",
+							}}
+						/>
+					</IconButton>
+				</a>
+			</Grid>
+			<Grid item>
+				<a href="https://www.goodfortunefelines.xyz/">
+					<IconButton>
+						<PublicIcon
+							className="growmore"
+							sx={{
+								fontSize: "200%",
+							}}
+						/>
+					</IconButton>
+				</a>
+			</Grid>
+		</Grid>
 	);
 }

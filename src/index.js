@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import reportWebVitals from "./reportWebVitals";
 import "animate.css";
 import Web3Context from "./contexts/Web3Context";
+import "react-toastify/dist/ReactToastify.css";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 const darkTheme = createTheme({
 	typography: {

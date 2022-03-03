@@ -1,6 +1,6 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import Web3Modal from "web3modal";
 
 const Web3Provider = createContext();
@@ -12,7 +12,11 @@ const Web3Context = ({ children }) => {
 	const [signer, setSigner] = useState();
 	const [provider, setProvider] = useState();
 	const [contract, setContract] = useState();
-	const NFTAddress = "0xa299197bA18Aa18886B1580140342FfAf12d3874";
+	const [loading, setLoading] = useState(true);
+	const [farmContract, setFarmContract] = useState();
+	const testNFT = "0xb2EDC843C52014c37b228f7e1FF0925bdA4Ce3DA";
+	const testNFTFarm = "0x239E22d5b5d071902017D318E834f3B469e4648B";
+	const NFTAddress = ""; //0xa299197bA18Aa18886B1580140342FfAf12d3874 or New NFT Mainnet Address
 	const web3Modal = new Web3Modal({
 		network: "testnet", // optional
 		cacheProvider: false, // optional
@@ -25,7 +29,22 @@ const Web3Context = ({ children }) => {
 		setContract();
 	};
 	const login = async () => {
-		web3Modal.clearCachedProvider();
+		//=============Etherjs for testnet==================
+		const _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+		setProvider(_provider);
+		//Pop up metamask
+		await _provider.send("eth_requestAccounts", []);
+		const _signer = _provider.getSigner();
+		setSigner(_signer);
+		const address = await _signer.getAddress();
+		const _contract = new ethers.Contract(testNFT, abi, _signer);
+		const _farmContract = new ethers.Contract(testNFTFarm, farm, _signer);
+		setAddress(address);
+		setContract(_contract);
+		setFarmContract(_farmContract);
+		setLoading(false);
+		//===================Web3Modal in Mainnet Only===================
+		/* web3Modal.clearCachedProvider();
 		const instance = await web3Modal.connect();
 		const _provider = new ethers.providers.Web3Provider(instance);
 
@@ -53,11 +72,16 @@ const Web3Context = ({ children }) => {
 		// Subscribe to provider disconnection
 		_provider.on("disconnect", (error) => {
 			console.log(error);
-		});
+		}); */
 	};
-	const value = { login, logout, signer, provider, NFTAddress, contract, address };
+	useEffect(() => {
+		//Check is already connected and set address details
+		login();
+	}, []);
 
-	return <Web3Provider.Provider value={value}>{children}</Web3Provider.Provider>;
+	const value = { login, logout, signer, provider, NFTAddress, testNFT, testNFTFarm, contract, address, farmContract };
+
+	return <Web3Provider.Provider value={value}>{!loading && children}</Web3Provider.Provider>;
 };
 const providerOptions = {
 	walletconnect: {
@@ -74,18 +98,274 @@ const providerOptions = {
 };
 
 export default Web3Context;
-
-const abi = [
+const farm = [
 	{
 		inputs: [
 			{
-				internalType: "string",
-				name: "_baseURI",
-				type: "string",
+				internalType: "address",
+				name: "NFTAddress",
+				type: "address",
 			},
 		],
 		stateMutability: "nonpayable",
 		type: "constructor",
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "address",
+				name: "previousOwner",
+				type: "address",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "newOwner",
+				type: "address",
+			},
+		],
+		name: "OwnershipTransferred",
+		type: "event",
+	},
+	{
+		inputs: [],
+		name: "NFT",
+		outputs: [
+			{
+				internalType: "contract IERC721",
+				name: "",
+				type: "address",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "claimReward",
+		outputs: [],
+		stateMutability: "payable",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "getRewardEstimate",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "stakerAddress",
+				type: "address",
+			},
+		],
+		name: "getStakedToken",
+		outputs: [
+			{
+				internalType: "uint256[]",
+				name: "",
+				type: "uint256[]",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address",
+			},
+			{
+				internalType: "address",
+				name: "",
+				type: "address",
+			},
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+			{
+				internalType: "bytes",
+				name: "",
+				type: "bytes",
+			},
+		],
+		name: "onERC721Received",
+		outputs: [
+			{
+				internalType: "bytes4",
+				name: "",
+				type: "bytes4",
+			},
+		],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "owner",
+		outputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "renounceOwnership",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_nftAddress",
+				type: "address",
+			},
+		],
+		name: "setNFTAddress",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "new_rate",
+				type: "uint256",
+			},
+		],
+		name: "setRewardRate",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256",
+			},
+		],
+		name: "stake",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "newOwner",
+				type: "address",
+			},
+		],
+		name: "transferOwnership",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256",
+			},
+		],
+		name: "unstake",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+];
+const abi = [
+	{
+		inputs: [],
+		stateMutability: "nonpayable",
+		type: "constructor",
+	},
+	{
+		inputs: [],
+		name: "ApprovalCallerNotOwnerNorApproved",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ApprovalQueryForNonexistentToken",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ApprovalToCurrentOwner",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ApproveToCaller",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "BalanceQueryForZeroAddress",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "MintToZeroAddress",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "MintZeroQuantity",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "OwnerQueryForNonexistentToken",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "TransferCallerNotOwnerNorApproved",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "TransferFromIncorrectOwner",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "TransferToNonERC721ReceiverImplementer",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "TransferToZeroAddress",
+		type: "error",
 	},
 	{
 		anonymous: false,
@@ -182,6 +462,19 @@ const abi = [
 		type: "event",
 	},
 	{
+		inputs: [],
+		name: "MAX_SUPPLY",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
 		inputs: [
 			{
 				internalType: "address",
@@ -220,13 +513,6 @@ const abi = [
 	},
 	{
 		inputs: [],
-		name: "changeStatus",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [],
 		name: "claimBalance",
 		outputs: [],
 		stateMutability: "nonpayable",
@@ -234,9 +520,29 @@ const abi = [
 	},
 	{
 		inputs: [],
-		name: "endPresale",
+		name: "flipReveal",
 		outputs: [],
 		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "flipSaleActive",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "getAllOwners",
+		outputs: [
+			{
+				internalType: "address[]",
+				name: "",
+				type: "address[]",
+			},
+		],
+		stateMutability: "view",
 		type: "function",
 	},
 	{
@@ -253,32 +559,6 @@ const abi = [
 				internalType: "address",
 				name: "",
 				type: "address",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "getTime",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "getUnlockTime",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
 			},
 		],
 		stateMutability: "view",
@@ -309,16 +589,16 @@ const abi = [
 		type: "function",
 	},
 	{
-		inputs: [
+		inputs: [],
+		name: "is_revealed",
+		outputs: [
 			{
-				internalType: "uint256",
-				name: "time",
-				type: "uint256",
+				internalType: "bool",
+				name: "",
+				type: "bool",
 			},
 		],
-		name: "lock",
-		outputs: [],
-		stateMutability: "nonpayable",
+		stateMutability: "view",
 		type: "function",
 	},
 	{
@@ -337,19 +617,27 @@ const abi = [
 	{
 		inputs: [
 			{
-				internalType: "address",
-				name: "player",
-				type: "address",
-			},
-			{
 				internalType: "uint256",
-				name: "amount",
+				name: "tokenQuantity",
 				type: "uint256",
 			},
 		],
-		name: "mint",
+		name: "mintNFT",
 		outputs: [],
 		stateMutability: "payable",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "mintPrice",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
+		stateMutability: "view",
 		type: "function",
 	},
 	{
@@ -367,15 +655,49 @@ const abi = [
 	},
 	{
 		inputs: [],
-		name: "normalPrice",
+		name: "notRevealedUri",
 		outputs: [
+			{
+				internalType: "string",
+				name: "",
+				type: "string",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address",
+			},
+			{
+				internalType: "address",
+				name: "",
+				type: "address",
+			},
 			{
 				internalType: "uint256",
 				name: "",
 				type: "uint256",
 			},
+			{
+				internalType: "bytes",
+				name: "",
+				type: "bytes",
+			},
 		],
-		stateMutability: "view",
+		name: "onERC721Received",
+		outputs: [
+			{
+				internalType: "bytes4",
+				name: "",
+				type: "bytes4",
+			},
+		],
+		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
@@ -412,84 +734,6 @@ const abi = [
 	},
 	{
 		inputs: [],
-		name: "presaleDuration",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "presaleEnd",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "presaleIsActive",
-		outputs: [
-			{
-				internalType: "bool",
-				name: "",
-				type: "bool",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "presalePrice",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "presaleSpotsFilled",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "presaleStartedAt",
-		outputs: [
-			{
-				internalType: "uint256",
-				name: "",
-				type: "uint256",
-			},
-		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
 		name: "renounceOwnership",
 		outputs: [],
 		stateMutability: "nonpayable",
@@ -510,7 +754,7 @@ const abi = [
 		],
 		name: "reserve",
 		outputs: [],
-		stateMutability: "payable",
+		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
@@ -566,7 +810,7 @@ const abi = [
 	},
 	{
 		inputs: [],
-		name: "saleIsActive",
+		name: "sale_active",
 		outputs: [
 			{
 				internalType: "bool",
@@ -591,13 +835,6 @@ const abi = [
 			},
 		],
 		name: "setApprovalForAll",
-		outputs: [],
-		stateMutability: "nonpayable",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "startSale",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
@@ -635,26 +872,19 @@ const abi = [
 		type: "function",
 	},
 	{
-		inputs: [],
-		name: "team1",
-		outputs: [
+		inputs: [
 			{
-				internalType: "address",
-				name: "",
-				type: "address",
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256",
 			},
 		],
-		stateMutability: "view",
-		type: "function",
-	},
-	{
-		inputs: [],
-		name: "team2",
+		name: "tokenImage",
 		outputs: [
 			{
-				internalType: "address",
+				internalType: "string",
 				name: "",
-				type: "address",
+				type: "string",
 			},
 		],
 		stateMutability: "view",
@@ -681,7 +911,7 @@ const abi = [
 	},
 	{
 		inputs: [],
-		name: "totalMint",
+		name: "totalSupply",
 		outputs: [
 			{
 				internalType: "uint256",
@@ -729,14 +959,29 @@ const abi = [
 		type: "function",
 	},
 	{
-		inputs: [],
-		name: "unlock",
+		inputs: [
+			{
+				internalType: "string",
+				name: "newURI",
+				type: "string",
+			},
+		],
+		name: "updateBaseUri",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		stateMutability: "payable",
-		type: "receive",
+		inputs: [
+			{
+				internalType: "string",
+				name: "imageURI",
+				type: "string",
+			},
+		],
+		name: "updateHiddenUri",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
 	},
 ];

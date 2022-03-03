@@ -26,7 +26,8 @@ const StyledButton = styled(Button)`
 	border-radius: 0px;
 `;
 const NavBar = () => {
-	const { login } = useWeb3();
+	const { login, address } = useWeb3();
+
 	return (
 		<AppBar
 			position="sticky"
@@ -87,7 +88,7 @@ const NavBar = () => {
 						size="large"
 						sx={{ borderRadius: "10px 10px 10px 10px" }}
 					>
-						Connect
+						{address ? address.slice(0, 6) + "..." : "Connect"}
 					</StyledButton>
 				</Toolbar>
 			</Container>
