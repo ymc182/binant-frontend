@@ -11,6 +11,7 @@ export default function Experience() {
 	const [idList, setIdList] = useState([]);
 	const [baseURI, setBaseURI] = useState();
 	const [stakedId, setStakedId] = useState([]);
+	const [estimateReward, setEstimateReward] = useState(0);
 	const tokenIdRef = useRef();
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
@@ -21,9 +22,11 @@ export default function Experience() {
 			const baseUri = await contract.getBaseURI();
 			await getStakedListByOwner();
 			await getTokenListByOwner();
+			await getEstimateReward();
 			setBaseURI(baseUri);
 			setStakeBalance(staked.length);
 			setNFTBalance(balance.toString());
+
 			setLoading(false);
 		}
 		init();
@@ -45,6 +48,14 @@ export default function Experience() {
 			setIdList(idArray);
 		}
 	};
+	const getEstimateReward = async () => {
+		try {
+			const estReward = await farmContract.getRewardEstimate();
+			setEstimateReward(estReward.toString());
+		} catch (e) {
+			console.error(e.message);
+		}
+	};
 	const onImageClick = (e, id) => {
 		console.log(id);
 		if (stakedId.findIndex((ids) => ids === id) === -1) {
@@ -55,7 +66,7 @@ export default function Experience() {
 	};
 	const stakeNFT = async (id) => {
 		const contractWithSigner = contract.connect(signer);
-		const tx = await contractWithSigner.approve(testNFTFarm, tokenIdRef.current.value);
+		const tx = await contractWithSigner.approve(testNFTFarm, id);
 
 		await toast.promise(waitForTransaction(tx.hash), {
 			pending: "Approving Stake",
@@ -63,7 +74,7 @@ export default function Experience() {
 			error: "Error getting Approval",
 		});
 		const farmWithSigner = farmContract.connect(signer);
-		const farmTx = await farmWithSigner.stake(tokenIdRef.current.value);
+		const farmTx = await farmWithSigner.stake(id);
 		const stake = await toast.promise(waitForTransaction(farmTx.hash), {
 			pending: "Staking",
 			success: "Staked!",
@@ -123,6 +134,7 @@ export default function Experience() {
 						<Grid item>
 							<Typography>You Own: {nftBalance} NFT</Typography>
 							<Typography>You Staked: {stakeBalance} NFT</Typography>
+							<Typography>Estimated Reward: {estimateReward} Token</Typography>
 							<Typography>Click Image To Stake / Unstake</Typography>
 						</Grid>
 
