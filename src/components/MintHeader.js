@@ -23,7 +23,7 @@ export default function MintHeader() {
 	const mint = async () => {
 		const contractWithSigner = contract.connect(signer);
 
-		const tx = await contractWithSigner.mintNFT(1, { value: ethers.utils.parseEther("0.1") });
+		const tx = await contractWithSigner.mintNFT(1, { value: ethers.utils.parseEther(mintPrice) });
 
 		const final = await toast.promise(waitForTransaction(tx.hash), {
 			pending: "Minting",

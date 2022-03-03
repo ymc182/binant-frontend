@@ -1,5 +1,5 @@
-import { Box, Button, Container, Grid, TextField, Typography } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import { Box, Container, Grid, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
@@ -12,7 +12,7 @@ export default function Experience() {
 	const [baseURI, setBaseURI] = useState();
 	const [stakedId, setStakedId] = useState([]);
 	const [estimateReward, setEstimateReward] = useState(0);
-	const tokenIdRef = useRef();
+
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
 		if (!signer) return;
@@ -132,7 +132,7 @@ export default function Experience() {
 						className="grow"
 					>
 						<Grid item>
-							<Typography>You Own: {nftBalance} NFT</Typography>
+							<Typography>You Own: {parseInt(nftBalance) + parseInt(stakeBalance)} NFT</Typography>
 							<Typography>You Staked: {stakeBalance} NFT</Typography>
 							<Typography>Estimated Reward: {estimateReward} Token</Typography>
 							<Typography>Click Image To Stake / Unstake</Typography>
@@ -198,7 +198,7 @@ export default function Experience() {
 										onClick={(e) => onImageClick(e, id)}
 										src={`${baseURI}${id}.png`}
 										alt="NFTs"
-										style={{ border: "3px solid #CE00FF", boxShadow: "0 0 10px #E07AFF" }}
+										style={{ border: "3px solid #CE00FF", boxShadow: "0 0 10px #E07AFF", borderRadius: "5px" }}
 									></img>
 									ID - {id}
 								</Grid>
