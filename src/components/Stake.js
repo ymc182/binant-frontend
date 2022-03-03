@@ -139,7 +139,7 @@ export default function Experience() {
 						</Grid>
 
 						<Grid item>
-							<Typography sx={{ borderBottom: "3px solid red" }}>Staked</Typography>
+							<Typography sx={{ borderBottom: "3px solid #CE00FF" }}>Staked</Typography>
 						</Grid>
 
 						{/* 	<img
@@ -198,7 +198,7 @@ export default function Experience() {
 										onClick={(e) => onImageClick(e, id)}
 										src={`${baseURI}${id}.png`}
 										alt="NFTs"
-										style={{ border: "3px solid red" }}
+										style={{ border: "3px solid #CE00FF", boxShadow: "0 0 10px #E07AFF" }}
 									></img>
 									ID - {id}
 								</Grid>
