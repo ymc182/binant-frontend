@@ -16,10 +16,12 @@ const Web3Context = ({ children }) => {
 	const [contract, setContract] = useState();
 	const [loading, setLoading] = useState(true);
 	const [farmContract, setFarmContract] = useState();
+	//Setup Testnet and Mainnet , testnet chain id is 97,mainnet is 56
 	const chainId = 97;
+	//Both Contract address here
 	const testNFT = "0x3C6CED26163125ab1985DF8cce4e6B4D4ed953E9";
 	const testNFTFarm = "0x1b70039D79d4Ec6e13F52f7D2E0821939450EE36";
-	const NFTAddress = ""; //0xa299197bA18Aa18886B1580140342FfAf12d3874 or New NFT Mainnet Address
+
 	const web3Modal = new Web3Modal({
 		network: "testnet", // optional
 		cacheProvider: false, // optional
@@ -127,7 +129,7 @@ const Web3Context = ({ children }) => {
 		//Check is already connected and set address details
 	}, []);
 
-	const value = { login, logout, signer, provider, NFTAddress, testNFT, testNFTFarm, contract, address, farmContract };
+	const value = { login, logout, signer, provider, testNFT, testNFTFarm, contract, address, farmContract };
 
 	return <Web3Provider.Provider value={value}>{!loading && children}</Web3Provider.Provider>;
 };
