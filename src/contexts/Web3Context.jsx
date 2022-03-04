@@ -17,8 +17,8 @@ const Web3Context = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 	const [farmContract, setFarmContract] = useState();
 	const chainId = 97;
-	const testNFT = "0x0AC3D84C25B809E3cBb45c7D37363c0CeD4Ef62D";
-	const testNFTFarm = "0xE18E4e4190e60Dce00C77043Fc257452f9d6a253";
+	const testNFT = "0x3C6CED26163125ab1985DF8cce4e6B4D4ed953E9";
+	const testNFTFarm = "0x1b70039D79d4Ec6e13F52f7D2E0821939450EE36";
 	const NFTAddress = ""; //0xa299197bA18Aa18886B1580140342FfAf12d3874 or New NFT Mainnet Address
 	const web3Modal = new Web3Modal({
 		network: "testnet", // optional

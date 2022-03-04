@@ -15,7 +15,7 @@ export default function MintHeader() {
 		const getTotal = async () => {
 			const total = await contract.totalSupply();
 			setNftSupply(total.toString());
-			const currentPrice = await contract.mintPrice();
+			const currentPrice = await contract.getCurrentPrice();
 			setMintPrice(ethers.utils.formatEther(currentPrice.toString()));
 		};
 		getTotal();
