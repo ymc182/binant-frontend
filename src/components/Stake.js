@@ -15,7 +15,10 @@ export default function Experience() {
 
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
-		if (!signer) return;
+		if (!signer) {
+			setLoading(false);
+			return;
+		}
 		async function init() {
 			const balance = await contract.balanceOf(address);
 			const staked = await farmContract.getStakedToken(address);
@@ -30,7 +33,7 @@ export default function Experience() {
 			setLoading(false);
 		}
 		init();
-	}, []);
+	}, [address]);
 	const getStakedListByOwner = async () => {
 		const stakedId = await farmContract.getStakedToken(address);
 		let idArray = [];
@@ -50,7 +53,8 @@ export default function Experience() {
 	};
 	const getEstimateReward = async () => {
 		try {
-			const estReward = await farmContract.getRewardEstimate();
+			const farmWithSigner = farmContract.connect(signer);
+			const estReward = await farmWithSigner.getRewardEstimate();
 			setEstimateReward(parseFloat(ethers.utils.formatEther(estReward.toString())).toFixed(3));
 		} catch (e) {
 			console.error(e.message);
@@ -125,7 +129,7 @@ export default function Experience() {
 			res(confirmedApprove);
 		});
 	};
-	if (loading) return <></>;
+	if (loading || !address) return <></>;
 	return (
 		<Container sx={{ width: { sx: "100vw", md: "90vw", marginTop: "50px" } }}>
 			<Box>

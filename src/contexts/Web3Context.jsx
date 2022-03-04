@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import Web3Modal from "web3modal";
 import abi from "./nftabi.json";
 import farm from "./farmabi.json";
+import { toast } from "react-toastify";
 const Web3Provider = createContext();
 export const useWeb3 = () => {
 	return useContext(Web3Provider);
@@ -15,6 +16,7 @@ const Web3Context = ({ children }) => {
 	const [contract, setContract] = useState();
 	const [loading, setLoading] = useState(true);
 	const [farmContract, setFarmContract] = useState();
+	const chainId = 97;
 	const testNFT = "0x0AC3D84C25B809E3cBb45c7D37363c0CeD4Ef62D";
 	const testNFTFarm = "0xE18E4e4190e60Dce00C77043Fc257452f9d6a253";
 	const NFTAddress = ""; //0xa299197bA18Aa18886B1580140342FfAf12d3874 or New NFT Mainnet Address
@@ -38,8 +40,8 @@ const Web3Context = ({ children }) => {
 		const _signer = _provider.getSigner();
 		setSigner(_signer);
 		const address = await _signer.getAddress();
-		const _contract = new ethers.Contract(testNFT, abi, _signer);
-		const _farmContract = new ethers.Contract(testNFTFarm, farm, _signer);
+		const _contract = new ethers.Contract(testNFT, abi, _provider);
+		const _farmContract = new ethers.Contract(testNFTFarm, farm, _provider);
 
 		setAddress(address);
 		setContract(_contract);
@@ -55,8 +57,10 @@ const Web3Context = ({ children }) => {
 		setProvider(_provider);
 		setSigner(_signer);
 		setAddress(await _signer.getAddress());
-		const _contract = new ethers.Contract(NFTAddress, abi, _signer);
+		const _contract = new ethers.Contract(testNFT, abi, _provider);
+		const _farmContract = new ethers.Contract(testNFTFarm, farm, _provider);
 		setContract(_contract);
+		setFarmContract(_farmContract);
 		_provider.on("accountsChanged", (accounts) => {
 			console.log(accounts);
 		});
@@ -76,9 +80,51 @@ const Web3Context = ({ children }) => {
 			console.log(error);
 		}); */
 	};
+
 	useEffect(() => {
+		async function initializeWallet() {
+			if (typeof window.ethereum === "undefined") {
+				setLoading(false);
+				return;
+			}
+			const _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+
+			window.ethereum.on("chainChanged", (id) => {
+				if (parseInt(id) !== chainId) {
+					toast("Incorrect Network,please switch to BSC testnet");
+					setLoading(false);
+					return;
+				}
+			});
+			window.ethereum.on("accountsChanged", async (accounts) => {
+				setLoading(true);
+				logout();
+				await login();
+				setLoading(false);
+			});
+			window.ethereum.on("connect", (connectinfo) => {
+				console.log(connectinfo);
+			});
+			window.ethereum.on("disconnect", (connectinfo) => {
+				console.log(connectinfo);
+			});
+			_provider.getNetwork().then((network) => {
+				if (network.chainId !== chainId) {
+					toast("Incorrect Network,please switch to BSC testnet");
+					setLoading(false);
+					return;
+				}
+				const _contract = new ethers.Contract(testNFT, abi, _provider);
+				const _farmContract = new ethers.Contract(testNFTFarm, farm, _provider);
+
+				setContract(_contract);
+				setFarmContract(_farmContract);
+				setProvider(_provider);
+				setLoading(false);
+			});
+		}
+		initializeWallet();
 		//Check is already connected and set address details
-		login();
 	}, []);
 
 	const value = { login, logout, signer, provider, NFTAddress, testNFT, testNFTFarm, contract, address, farmContract };

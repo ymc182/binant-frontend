@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 export default function MintHeader() {
 	const [nftSupply, setNftSupply] = React.useState(null);
 	const [mintPrice, setMintPrice] = React.useState();
-	const { contract, signer, address, provider } = useWeb3();
+	const { contract, signer, address, provider, login } = useWeb3();
 	useEffect(() => {
 		if (!contract) return;
 		const getTotal = async () => {
@@ -97,8 +97,8 @@ export default function MintHeader() {
 								<Typography variant="subtitle1">Launching 28/02 5pm UTC</Typography>
 							</Grid>
 							<Grid item>
-								<StyledButton onClick={mint} className="grow" variant="outlined" size="large">
-									Mint Now
+								<StyledButton onClick={address ? mint : login} className="grow" variant="outlined" size="large">
+									{address ? "Mint Now" : "Connect"}
 								</StyledButton>
 							</Grid>
 

@@ -26,7 +26,7 @@ const StyledButton = styled(Button)`
 	border-radius: 0px;
 `;
 const NavBar = () => {
-	const { login, address } = useWeb3();
+	const { login, address, logout } = useWeb3();
 
 	return (
 		<AppBar
@@ -82,7 +82,7 @@ const NavBar = () => {
 					</Box>
 
 					<StyledButton
-						onClick={login}
+						onClick={address ? login : logout}
 						className="grow"
 						variant="standard"
 						size="large"
