@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-toastify";
@@ -51,7 +51,7 @@ export default function Experience() {
 	const getEstimateReward = async () => {
 		try {
 			const estReward = await farmContract.getRewardEstimate();
-			setEstimateReward(estReward.toString());
+			setEstimateReward(parseFloat(ethers.utils.formatEther(estReward.toString())).toFixed(3));
 		} catch (e) {
 			console.error(e.message);
 		}
@@ -63,6 +63,15 @@ export default function Experience() {
 		} else {
 			unstakeNFT(parseInt(id));
 		}
+	};
+	const claimReward = async () => {
+		const farmWithSigner = farmContract.connect(signer);
+		const tx = await farmWithSigner.claimReward();
+		toast.promise(waitForTransaction(tx.hash), {
+			pending: "Pending Reward",
+			success: "Rewarded!",
+			error: "Error getting reward",
+		});
 	};
 	const stakeNFT = async (id) => {
 		const contractWithSigner = contract.connect(signer);
@@ -135,6 +144,9 @@ export default function Experience() {
 							<Typography>You Own: {parseInt(nftBalance) + parseInt(stakeBalance)} NFT</Typography>
 							<Typography>You Staked: {stakeBalance} NFT</Typography>
 							<Typography>Estimated Reward: {estimateReward} Token</Typography>
+							<Button variant="outlined" onClick={claimReward}>
+								Claim Reward!
+							</Button>
 							<Typography>Click Image To Stake / Unstake</Typography>
 						</Grid>
 
