@@ -141,7 +141,7 @@ function SocialMediaButton({}) {
 	return (
 		<Grid container display={"flex"}>
 			<Grid item>
-				<a href="https://discord.com/invite/YNNu7aM2BH">
+				<a href="#">
 					<IconButton
 						className="growmore"
 						sx={{
@@ -153,7 +153,7 @@ function SocialMediaButton({}) {
 				</a>
 			</Grid>
 			<Grid item>
-				<a href="https://www.instagram.com/goodfortunefelines/">
+				<a href="#">
 					<IconButton>
 						<InstagramIcon
 							className="growmore"
@@ -166,7 +166,7 @@ function SocialMediaButton({}) {
 			</Grid>
 
 			<Grid item>
-				<a href="https://twitter.com/goodfortuneNFT">
+				<a href="#">
 					<IconButton>
 						<TwitterIcon
 							className="growmore"
@@ -178,7 +178,7 @@ function SocialMediaButton({}) {
 				</a>
 			</Grid>
 			<Grid item>
-				<a href="https://www.goodfortunefelines.xyz/">
+				<a href="#">
 					<IconButton>
 						<PublicIcon
 							className="growmore"
