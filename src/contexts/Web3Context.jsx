@@ -5,6 +5,7 @@ import Web3Modal from "web3modal";
 import abi from "./nftabi.json";
 import farm from "./farmabi.json";
 import { toast } from "react-toastify";
+import { Backdrop, Box, CircularProgress } from "@mui/material";
 const Web3Provider = createContext();
 export const useWeb3 = () => {
 	return useContext(Web3Provider);
@@ -34,6 +35,7 @@ const Web3Context = ({ children }) => {
 		setContract();
 	};
 	const login = async () => {
+		setLoading(true);
 		//=============Etherjs for testnet==================
 		const _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 		setProvider(_provider);
@@ -41,11 +43,11 @@ const Web3Context = ({ children }) => {
 		await _provider.send("eth_requestAccounts", []);
 		const _signer = _provider.getSigner();
 		setSigner(_signer);
-		const address = await _signer.getAddress();
+		const _address = await _signer.getAddress();
 		const _contract = new ethers.Contract(testNFT, abi, _provider);
 		const _farmContract = new ethers.Contract(testNFTFarm, farm, _provider);
 
-		setAddress(address);
+		setAddress(_address);
 		setContract(_contract);
 		setFarmContract(_farmContract);
 		setLoading(false);
@@ -131,7 +133,17 @@ const Web3Context = ({ children }) => {
 
 	const value = { login, logout, signer, provider, testNFT, testNFTFarm, contract, address, farmContract };
 
-	return <Web3Provider.Provider value={value}>{!loading && children}</Web3Provider.Provider>;
+	return (
+		<Web3Provider.Provider value={value}>
+			{loading ? (
+				<Backdrop sx={{ background: "#270027", color: "white", zIndex: 1001 }} open={loading}>
+					<CircularProgress color="inherit" />
+				</Backdrop>
+			) : (
+				children
+			)}
+		</Web3Provider.Provider>
+	);
 };
 const providerOptions = {
 	walletconnect: {

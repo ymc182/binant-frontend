@@ -15,11 +15,12 @@ export default function Experience() {
 
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
-		if (!signer) {
+		if (!signer && !address) {
 			setLoading(false);
 			return;
 		}
 		async function init() {
+			setLoading(true);
 			const balance = await contract.balanceOf(address);
 			const staked = await farmContract.getStakedToken(address);
 			const baseUri = await contract.getBaseURI();

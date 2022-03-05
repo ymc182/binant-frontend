@@ -10,6 +10,20 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/material";
 import { useWeb3 } from "../contexts/Web3Context";
 const pages = [];
+const TextButton = styled(Button)`
+	color: #fff;
+	width: 90px;
+	height: 60px;
+	padding: 6px 6px;
+	font-size: 18px;
+
+	&:hover {
+		color: #fff;
+	}
+	&:focus {
+	}
+	border-radius: 0px;
+`;
 const StyledButton = styled(Button)`
 	background: #291440;
 	color: #fff;
@@ -27,7 +41,7 @@ const StyledButton = styled(Button)`
 `;
 const NavBar = () => {
 	const { login, address, logout } = useWeb3();
-
+	const buttom = React.useRef();
 	return (
 		<AppBar
 			position="sticky"
@@ -48,16 +62,26 @@ const NavBar = () => {
 							sx={{
 								width: "80px",
 								height: "80px",
-
 								display: "flex",
 								alignItems: "center",
 								justifyContent: "center",
 							}}
 						>
-							<img src="/img/favicon.ico" height={60} width={60} alt="LOGO"></img>
+							<img src="/img/favicon.ico" height={"100%"} width={"100%"} alt="LOGO"></img>
 						</Box>
 					</Typography>
-
+					<Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: { xs: "none", md: "flex" } }}>
+						<TextButton onClick={(e) => window.location.replace("/")}>Home</TextButton>
+					</Typography>
+					<Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: { xs: "none", md: "flex" } }}>
+						<TextButton
+							onClick={(e) => {
+								buttom.current.scrollIntoView({ behavior: "smooth" });
+							}}
+						>
+							Stake
+						</TextButton>
+					</Typography>
 					<Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
 						<Box
 							sx={{
@@ -82,7 +106,7 @@ const NavBar = () => {
 					</Box>
 
 					<StyledButton
-						onClick={address ? login : logout}
+						onClick={address ? logout : login}
 						className="grow"
 						variant="standard"
 						size="large"
@@ -91,6 +115,7 @@ const NavBar = () => {
 						{address ? address.slice(0, 6) + "..." : "Connect"}
 					</StyledButton>
 				</Toolbar>
+				<div style={{ float: "left", clear: "both" }} ref={buttom}></div>
 			</Container>
 		</AppBar>
 	);
