@@ -14,5 +14,6 @@ For Contract
 3.) Deploy Farm Contract with the address of NFT Contract
 4.) Set the Token Contract Address in Farm Contract
 5.) Mint Tokens into Farm Contract
-
+6.) Setup all Address in .env file and copy abi from remix into each json file accordingly
+7.) deploy to Vercel with setting CI to false or any hosting you desired.
 Done
