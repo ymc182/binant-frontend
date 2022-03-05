@@ -18,10 +18,11 @@ const Web3Context = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 	const [farmContract, setFarmContract] = useState();
 	//Setup Testnet and Mainnet , testnet chain id is 97,mainnet is 56
-	const chainId = 97;
+	const chainId = parseInt(process.env.REACT_APP_CHAIN_ID);
+	console.log(chainId);
 	//Both Contract address here
-	const testNFT = "0x3C6CED26163125ab1985DF8cce4e6B4D4ed953E9";
-	const testNFTFarm = "0x1b70039D79d4Ec6e13F52f7D2E0821939450EE36";
+	const testNFT = process.env.REACT_APP_NFT_CONTRACT_ADDRESS;
+	const testNFTFarm = process.env.REACT_APP_FARM_CONTRACT_ADDRESS;
 
 	const web3Modal = new Web3Modal({
 		network: "testnet", // optional
