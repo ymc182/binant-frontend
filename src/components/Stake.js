@@ -1,4 +1,4 @@
-import { Box, Button, Container, Grid, Typography } from "@mui/material";
+import { Box, Button, Container, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useWeb3 } from "../contexts/Web3Context";
 import { toast } from "react-toastify";
@@ -12,7 +12,7 @@ export default function Experience() {
 	const [baseURI, setBaseURI] = useState();
 	const [stakedId, setStakedId] = useState([]);
 	const [estimateReward, setEstimateReward] = useState(0);
-
+	const [stakeDays, setStakeDays] = React.useState("");
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
 		if (!signer && !address) {
@@ -88,7 +88,7 @@ export default function Experience() {
 			error: "Error getting Approval",
 		});
 		const farmWithSigner = farmContract.connect(signer);
-		const farmTx = await farmWithSigner.stake(id);
+		const farmTx = await farmWithSigner.stakeWithTimeLock(id, parseInt(stakeDays));
 		const stake = await toast.promise(waitForTransaction(farmTx.hash), {
 			pending: "Staking",
 			success: "Staked!",
@@ -152,6 +152,24 @@ export default function Experience() {
 							<Button variant="outlined" onClick={claimReward}>
 								Claim Reward!
 							</Button>
+							<Box sx={{ minWidth: 120 }}>
+								<FormControl fullWidth>
+									<InputLabel id="demo-simple-select-label">Stake Days</InputLabel>
+									<Select
+										labelId="demo-simple-select-label"
+										id="demo-simple-select"
+										value={stakeDays}
+										label="Stake Day"
+										onChange={(e) => {
+											setStakeDays(parseInt(e.target.value));
+										}}
+									>
+										<MenuItem value={15}>15</MenuItem>
+										<MenuItem value={30}>30</MenuItem>
+										<MenuItem value={45}>45</MenuItem>
+									</Select>
+								</FormControl>
+							</Box>
 							<Typography>Click Image To Stake / Unstake</Typography>
 						</Grid>
 
