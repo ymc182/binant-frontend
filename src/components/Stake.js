@@ -152,7 +152,7 @@ export default function Experience() {
 							<Button variant="outlined" onClick={claimReward}>
 								Claim Reward!
 							</Button>
-							<Box sx={{ minWidth: 120 }}>
+							<Box sx={{ minWidth: 120, mt: 1 }}>
 								<FormControl fullWidth>
 									<InputLabel id="demo-simple-select-label">Stake Days</InputLabel>
 									<Select
